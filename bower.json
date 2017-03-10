@@ -1,0 +1,15 @@
+{
+  "name": "angular-gapi",
+  "homepage": "https://github.com/andryfailli/angular-gapi",
+  "authors": [
+    "Andrea Failli <andry.failli@gmail.com>"
+  ],
+  "description": "Angular 1.x library for interacting with Google APIs",
+  "main": "angular-gapi.min.js",
+  "keywords": [
+    "angular",
+    "google",
+    "client"
+  ],
+  "license": "Apache-2.0"
+}
