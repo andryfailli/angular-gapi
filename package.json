@@ -1,7 +1,7 @@
 {
   "name": "angular-gapi",
-  "version": "1.0.0",
-  "description": "Angular 1.x library for interacting with Google APIs",
+  "version": "1.0.1",
+  "description": "Angular 1.x library for interacting with Google APIs and Google Cloud Endpoints APIs",
   "main": "angular-gapi.min.js",
   "repository": {
     "type": "git",
