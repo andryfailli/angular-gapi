@@ -25,7 +25,7 @@
                     reqPayloadPaged[config.pageTokenFieldName] = list.$nextPageToken;
                     reqPayloadPaged[config.limitFieldName] = list.$limit;
 
-                    var reqPath = (config.resourceType ? config.resourceType + "." + reqMethod : reqMethod).toLowerCase();
+                    var reqPath = config.resourceType ? config.resourceType.toLowerCase() + "." + reqMethod : reqMethod;
 
                     var response = client.exec(reqPath, reqPayloadPaged);
                     angular.extend(list, response);
@@ -90,7 +90,7 @@
                 if (angular.isObject(data)) angular.extend(resource, data);
 
                 resource.$exec = function(method, params) {
-                    var reqPath = (config.resourceType ? config.resourceType + "." + method : method).toLowerCase();
+                    var reqPath = config.resourceType ? config.resourceType.toLowerCase() + "." + method : method
                     return client.exec(reqPath, params, this);
                 };
 
