@@ -205,7 +205,10 @@
             _$q.all(authDeferred ? [authDeferred.promise, clientPromises[clientName]] : [clientPromises[clientName]]).then(function() {
 
                 var client = clients[clientName];
+				if (!client) throw clientName+" is not a gapi client";
+				
                 var method = traverse(client, methodName);
+				if (!angular.isFunction(method)) throw methodName+" is not a valid method for client "+clientName;
 
                 method(request).execute(function(response) {
 
