@@ -120,7 +120,16 @@
                     var reqPath = config.resourceType ? config.resourceType.toLowerCase() + "." + reqMethod : reqMethod;
 
                     var response = client.exec(reqPath, reqPayloadPaged);
-                    angular.extend(list, response);
+                    
+					// insert temporary cached items
+                    var cachedItems = [];
+					list.$nextPageToken = response[config.nextPageTokenFieldName];
+                    if (angular.isArray(response[config.itemsFiledName])) {
+                        for (var i = 0; i < response[config.itemsFiledName].length; i++) {
+                            list.push(resourceConstructor(response[config.itemsFiledName][i]));
+                            cachedItems.push(resourceConstructor(response[config.itemsFiledName][i]));
+                        }
+                    }
 
                     var listDeferred = $q.defer();
                     list.$promise = listDeferred.promise;
@@ -131,6 +140,12 @@
 
                     response.$promise
                         .then(function() {
+							
+							// remove temporary cached items
+                            for (var i = 0; i < cachedItems.length; i++) {
+                                list.splice(list.indexOf(cachedItems[i]),1);
+                            }
+							
                             if (angular.isArray(response[config.itemsFiledName])) {
                                 for (var i = 0; i < response[config.itemsFiledName].length; i++) {
                                     list.push(resourceConstructor(response[config.itemsFiledName][i]));
@@ -404,14 +419,7 @@
             var execDeferred = _$q.defer();
 
             var execResultDraft = buildClientExecResultDraft(execDeferred.promise, resource);
-
             var execResultCacheKey = clientName + "." + methodName + "(" + angular.toJson(request) + ")";
-            if (cache) {
-                var cachedExecResult = cache.get(execResultCacheKey);
-                if (cachedExecResult) {
-                    angular.extend(execResultDraft, cachedExecResult);
-                }
-            }
 
             var previous$resolved = execResultDraft.$resolved;
             execResultDraft.$resolved = false;
@@ -428,15 +436,22 @@
                     execResultDraft.$resolving = false;
 
                 }).catch(function() {
-                execResultDraft.$resolved = angular.isDefined(previous$resolved) ? previous$resolved : false;
-                execResultDraft.$resolving = false;
-            });
+                    execResultDraft.$resolved = angular.isDefined(previous$resolved) ? previous$resolved : false;
+                    execResultDraft.$resolving = false;
+                });
+
+            if (cache) {
+                var cachedExecResult = cache.get(execResultCacheKey);
+                if (cachedExecResult) {
+                    angular.extend(execResultDraft, cachedExecResult);
+                }
+            }
 
             _$q.all(authDeferred ? [authDeferred.promise, clientPromises[clientName]] : [clientPromises[clientName]]).then(function() {
 
                 var client = clients[clientName];
 				if (!client) throw clientName+" is not a gapi client";
-				
+
                 var method = traverse(client, methodName);
 				if (!angular.isFunction(method)) throw methodName+" is not a valid method for client "+clientName;
 
