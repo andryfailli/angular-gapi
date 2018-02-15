@@ -28,7 +28,16 @@
                     var reqPath = config.resourceType ? config.resourceType.toLowerCase() + "." + reqMethod : reqMethod;
 
                     var response = client.exec(reqPath, reqPayloadPaged);
-                    angular.extend(list, response);
+                    
+					// insert temporary cached items
+                    var cachedItems = [];
+					list.$nextPageToken = response[config.nextPageTokenFieldName];
+                    if (angular.isArray(response[config.itemsFiledName])) {
+                        for (var i = 0; i < response[config.itemsFiledName].length; i++) {
+                            list.push(resourceConstructor(response[config.itemsFiledName][i]));
+                            cachedItems.push(resourceConstructor(response[config.itemsFiledName][i]));
+                        }
+                    }
 
                     var listDeferred = $q.defer();
                     list.$promise = listDeferred.promise;
@@ -39,6 +48,12 @@
 
                     response.$promise
                         .then(function() {
+							
+							// remove temporary cached items
+                            for (var i = 0; i < cachedItems.length; i++) {
+                                list.splice(list.indexOf(cachedItems[i]),1);
+                            }
+							
                             if (angular.isArray(response[config.itemsFiledName])) {
                                 for (var i = 0; i < response[config.itemsFiledName].length; i++) {
                                     list.push(resourceConstructor(response[config.itemsFiledName][i]));
