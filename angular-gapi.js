@@ -123,13 +123,24 @@
                     
 					// insert temporary cached items
                     var cachedItems = [];
-					list.$nextPageToken = response[config.nextPageTokenFieldName];
-                    if (angular.isArray(response[config.itemsFiledName])) {
-                        for (var i = 0; i < response[config.itemsFiledName].length; i++) {
-                            list.push(resourceConstructor(response[config.itemsFiledName][i]));
-                            cachedItems.push(resourceConstructor(response[config.itemsFiledName][i]));
-                        }
-                    }
+                    response.$promise.then(null, null, function(){
+                      if (!list.$resolved) {
+
+                          // remove temporary cached items
+                          for (var i = 0; i < cachedItems.length; i++) {
+                              list.splice(list.indexOf(cachedItems[i]),1);
+                          }
+                          cachedItems.splice(0, cachedItems.length);
+
+                          if (angular.isArray(response[config.itemsFiledName])) {
+                              for (var i = 0; i < response[config.itemsFiledName].length; i++) {
+                                  list.push(resourceConstructor(response[config.itemsFiledName][i]));
+                                  cachedItems.push(resourceConstructor(response[config.itemsFiledName][i]));
+                              }
+                          }
+                          list.$nextPageToken = response[config.nextPageTokenFieldName];
+                      }
+                    });
 
                     var listDeferred = $q.defer();
                     list.$promise = listDeferred.promise;
@@ -145,6 +156,7 @@
                             for (var i = 0; i < cachedItems.length; i++) {
                                 list.splice(list.indexOf(cachedItems[i]),1);
                             }
+							cachedItems.splice(0, cachedItems.length);
 							
                             if (angular.isArray(response[config.itemsFiledName])) {
                                 for (var i = 0; i < response[config.itemsFiledName].length; i++) {
@@ -441,10 +453,12 @@
                 });
 
             if (cache) {
-                var cachedExecResult = cache.get(execResultCacheKey);
-                if (cachedExecResult) {
-                    angular.extend(execResultDraft, cachedExecResult);
-                }
+                _$q.when(cache.get(execResultCacheKey)).then(function(cachedExecResult){
+                    if (cachedExecResult && !execResultDraft.$resolved) {
+						angular.extend(execResultDraft, cachedExecResult);
+						execDeferred.notify(execResultDraft)
+					}
+                });
             }
 
             _$q.all(authDeferred ? [authDeferred.promise, clientPromises[clientName]] : [clientPromises[clientName]]).then(function() {
