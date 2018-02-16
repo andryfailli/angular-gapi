@@ -196,10 +196,12 @@
                 });
 
             if (cache) {
-                var cachedExecResult = cache.get(execResultCacheKey);
-                if (cachedExecResult) {
-                    angular.extend(execResultDraft, cachedExecResult);
-                }
+                _$q.when(cache.get(execResultCacheKey)).then(function(cachedExecResult){
+                    if (cachedExecResult && !execResultDraft.$resolved) {
+						angular.extend(execResultDraft, cachedExecResult);
+						execDeferred.notify(execResultDraft)
+					}
+                });
             }
 
             _$q.all(authDeferred ? [authDeferred.promise, clientPromises[clientName]] : [clientPromises[clientName]]).then(function() {
