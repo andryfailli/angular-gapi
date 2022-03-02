@@ -1,6 +1,6 @@
 {
   "name": "angular-gapi",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Angular 1.x library for interacting with Google APIs and Google Cloud Endpoints APIs",
   "main": "angular-gapi.min.js",
   "repository": {
@@ -22,6 +22,7 @@
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
     "gulp-insert": "^0.5.0",
+    "gulp-license": "^1.1.0",
     "gulp-ng-annotate": "^2.0.0",
     "gulp-uglify": "^1.5.3"
   }
