@@ -9,7 +9,9 @@
         window.ngGapiInit = function() {
             window.ngGapiInitSemaphore--;
             if (window.ngGapiInitSemaphore == 0)
-                GapiProvider.setGapi(window.gapi);
+                gapi.load('auth', function() {
+					GapiProvider.setGapi(window.gapi);
+				});
         }
 
         function loadScript(id, src) {
